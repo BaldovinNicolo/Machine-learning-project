@@ -6,7 +6,8 @@ Created on Fri Nov 24 19:45:51 2023
 @author: nicolobaldovin
 @matricola: 892115
 """
- 
+
+# First, we will start by importing the necessary libraries and loading the data 
 from ucimlrepo import fetch_ucirepo 
 import numpy as np
 import random
@@ -29,15 +30,21 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # Fetch dataset 
 spambase = fetch_ucirepo(id=94) 
-  
-# Data (as pandas dataframes) 
+
+
+# DATASET
+# link: "https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data"
+
+
+# Split the data into features and labels
 X = spambase.data.features 
 y = spambase.data.targets 
 
-
+# Drop features 55-57 starting counting from 1 (columns 54-56 starting from 0)
 X = X.drop(columns=X.columns[[54, 55, 56]])
 data = X + y
 
+# Next, we will transform the data using the TF/IDF representation
 X = TfidfTransformer().fit_transform(X)
 
 omnia = {}
@@ -47,7 +54,7 @@ X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.3, random_st
 def SVM(X,y):
     start = time.time()
     tracemalloc.start()
-    svm_linear = SVC(kernel="linear", C=1.0, random_state = 5)
+    svm_linear = SVC(kernel="linear", C=1.0, random_state = 5)  # SVM with linear kernel
     results_linear = cross_val_score(svm_linear, X, np.ravel(y), cv=10)
     non, peak = tracemalloc.get_traced_memory()
     end = time.time()
@@ -66,7 +73,7 @@ def SVM(X,y):
         
     start = time.time()
     tracemalloc.start()
-    svm_poly = SVC(kernel="poly", degree=2, random_state = 5, C=1000.0)
+    svm_poly = SVC(kernel="poly", degree=2, random_state = 5, C=1000.0) # SVM with polynomial kernel of degree 2
     results_poly = cross_val_score(svm_poly, X, np.ravel(y), cv=10)
     non, peak = tracemalloc.get_traced_memory()
     end = time.time()
@@ -85,7 +92,7 @@ def SVM(X,y):
     
     start = time.time()
     tracemalloc.start()
-    svm_rbf = SVC(kernel="rbf", random_state = 5, C = 10.0)
+    svm_rbf = SVC(kernel="rbf", random_state = 5, C = 10.0) # SVM with RBF kernel
     results_rbf = cross_val_score(svm_rbf, X, np.ravel(y), cv=10)
     non, peak = tracemalloc.get_traced_memory()
     end = time.time()
@@ -124,6 +131,7 @@ def angular_polynomial(X_train, y_train, X_test, y_test):
     
 # -------------------------------------------------------
 
+# Random forests
 def Random_forests(X,y):
     start = time.time()
     tracemalloc.start()
@@ -144,6 +152,7 @@ def Random_forests(X,y):
     print('Std: %0.3f' %(omnia["random_forest"][2]))
     print('Memory: %d'% (omnia["random_forest"][4]))
     
+# k-NN with k=5    
 def k_NN(X,y):
     start = time.time()
     tracemalloc.start()
@@ -164,7 +173,8 @@ def k_NN(X,y):
     print('Std: %0.3f' %(omnia["k_nn"][2]))
     print('Memory: %d'% (omnia["k_nn"][4]))
     
-
+# Naive Bayes classifier
+# Convert the sparse matrix to a dense numpy array
 def Naive_Bayes_Gauss(X,y):
     start = time.time()
     tracemalloc.start()
